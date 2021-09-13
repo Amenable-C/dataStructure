@@ -1,20 +1,179 @@
-﻿// dataStructure.cpp : 이 파일에는 'main' 함수가 포함됩니다. 거기서 프로그램 실행이 시작되고 종료됩니다.
-//
-
+﻿// Do not use 2-D array, such as int a[2][3];
 #include <iostream>
+#include <stdlib.h>
+using namespace std;
+
+//implement the functions : add, sub, mult, transpose
+class Matrix {
+public:
+	Matrix(int row, int col);
+	int GetData();
+	Matrix Transpose();
+	int Display();
+	Matrix Multiply(Matrix b);
+	Matrix Add(Matrix b);
+	Matrix Sub(Matrix b);
+	Matrix Multiply2(Matrix b);
+	int CompareRowCol(Matrix b);
+private:
+	int rows, cols;
+	int* Term; // 1차원으로 정의하고 있음 
+};
+
+Matrix::Matrix(int row, int col) : rows(row), cols(col)
+{
+	Term = new int[rows * cols];
+}
+
+int Matrix::GetData() { // 화면에서 입력받거나 난수를 생성하는걸로 바꿀수 있음?
+	int input_value;
+	cout << "rows = " << rows << "  cols = " << cols << endl; // private이니깐 그냥 쓰는거?
+	for (int j = 0; j < rows * cols; j++)
+	{
+		cout << "term value = ";
+		cin >> input_value; 
+		cout << " " << endl;
+		Term[j] = input_value; // 쭉 나열?
+	}
+	return 0;
+}
+
+Matrix Matrix::Transpose() { // 전치행렬
+	Matrix b(cols, rows);
+
+	int n = rows * cols;
+	for (int i = 0; i < cols; i++)
+	{
+		//To be implemented
+		for(int j = 0; j < rows; j++)
+        {
+			b.Term[i * rows + j] = Term[i + j * cols];
+        }
+	}
+	cout << endl;
+	return b;
+}
+
+Matrix Matrix::Multiply(Matrix b) {
+	if (cols != b.rows) cout << "Imcompatible matrices" << endl;
+	Matrix d(rows, b.cols); // 여기서 이미 크기에 대하여 결정 됨.
+	for (int i = 0; i < rows; i++)
+	{
+		for (int j = 0; j < b.cols; j++)
+		{
+			//To be implemented
+			d.Term[i * b.cols + j] = 0;
+			for (int k = 0; k < cols; k++)
+			{
+				cout << Term[i * cols + k] << " " << b.Term[k * b.cols + j] << endl;
+				d.Term[i * b.cols + j] += Term[i * cols + k] * b.Term[k * b.cols + j];
+			}
+			cout << d.Term[i * b.cols + j] << endl;
+		}
+	}
+	return d;
+}
+
+Matrix Matrix::Add(Matrix b) {
+	if (cols != b.cols) cout << "Incompatible matrices" << endl;
+	if (rows != b.rows) cout << "Incompatible matrices" << endl;
+
+	Matrix d(rows, cols);
+	for (int i = 0; i < rows; i++)
+	{
+		//To be implemented
+		for (int j = 0; j < cols; j++)
+		{
+			d.Term[i * cols + j] = Term[i * cols + j] + b.Term[i * cols + j];
+		}
+	}
+	return d;
+}
+
+Matrix Matrix::Sub(Matrix b) {
+	if (cols != b.cols) cout << "Incompatible matrices" << endl;
+	if (rows != b.rows) cout << "Incompatible matrices" << endl;
+
+	Matrix d(rows, cols);
+	for (int i = 0; i < rows; i++)
+	{
+		for (int j = 0; j < cols; j++)
+		{
+		    //To be implemented
+			d.Term[i * cols + j] = Term[i * cols + j] - b.Term[i * cols + j];
+		}
+	}
+	return d;
+}
+
+Matrix Matrix::Multiply2(Matrix b) {
+	if (cols != b.rows) cout << "Incompatible matrices" << endl;
+	Matrix bXpose = b.Transpose();
+	Matrix d(rows, b.cols);
+	// Must be implemented by using bXpose
+	return d;
+}
+
+int Matrix :: CompareRowCol(Matrix b) {
+	if (cols != b.rows) return 1;
+	else return 0;
+}
+int Matrix::Display() {
+	int n;
+	n = rows * cols;
+	for (int i = 0; i < rows; i++)
+	{
+		//To be implemented
+		for(int j = 0; j < cols; j++)
+        {
+		    cout << Term[i * cols + j] << ' ';
+
+        }
+		cout << endl;
+	}
+	cout << endl;
+	return 0;
+}
 
 int main()
 {
-    std::cout << "Hello World!\n";
+	Matrix a(12, 13);
+	Matrix b(13, 14);
+	Matrix c(12, 14);
+	Matrix d(12, 14);
+	Matrix t(14, 13);
+	cout << "Enter first matrix: " << endl;
+	a.GetData();
+	cout << "Enter second matrix: " << endl;
+	b.GetData();
+	cout << "Display first matrix: " << endl;
+	a.Display();
+	cout << "Display second matrix: " << endl;
+	b.Display();
+	t = b.Transpose();
+	cout << "Transpose() of Matrix b" << endl;
+	t.Display();
+	/* If colum of first matrix in not euqal to row of second matrix, asking user to enter the size of matrix again. */
+	if (a.CompareRowCol(b))
+	{
+		cout << "Error! column of first matrix not equal to row of second.";
+		cout << "Enter rows and columns for first matrix: ";
+	}
+	c = a.Multiply(b); //not using transpose()
+	cout << "Multiply of Matrix a,b " << endl;
+	c.Display(); //cout << c; // 옆에 것으로 바꿈
+	cout << "Sub of Matrix c,d " << endl; // 추가
+
+	cout << "Display D" << endl; // 확인용 추가
+	d.Display(); // 확인용 추가
+
+	d = c.Sub(d); // 빼기 잘 작동함 
+	d.Display(); // cout << d; // 옆에 것으로 바꿈
+	cout << "using transpose()" << endl;
+	t = b.Transpose();
+	c = a.Multiply2(t);
+	c.Display(); // cout << c; // 옆에 것으로 바꿈
+	system("pause");
+	return 0;
+
 }
-
-// 프로그램 실행: <Ctrl+F5> 또는 [디버그] > [디버깅하지 않고 시작] 메뉴
-// 프로그램 디버그: <F5> 키 또는 [디버그] > [디버깅 시작] 메뉴
-
-// 시작을 위한 팁: 
-//   1. [솔루션 탐색기] 창을 사용하여 파일을 추가/관리합니다.
-//   2. [팀 탐색기] 창을 사용하여 소스 제어에 연결합니다.
-//   3. [출력] 창을 사용하여 빌드 출력 및 기타 메시지를 확인합니다.
-//   4. [오류 목록] 창을 사용하여 오류를 봅니다.
-//   5. [프로젝트] > [새 항목 추가]로 이동하여 새 코드 파일을 만들거나, [프로젝트] > [기존 항목 추가]로 이동하여 기존 코드 파일을 프로젝트에 추가합니다.
-//   6. 나중에 이 프로젝트를 다시 열려면 [파일] > [열기] > [프로젝트]로 이동하고 .sln 파일을 선택합니다.
