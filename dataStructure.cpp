@@ -65,10 +65,10 @@ Matrix Matrix::Multiply(Matrix b) {
 			d.Term[i * b.cols + j] = 0;
 			for (int k = 0; k < cols; k++)
 			{
-				cout << Term[i * cols + k] << " " << b.Term[k * b.cols + j] << endl;
+				//cout << Term[i * cols + k] << " " << b.Term[k * b.cols + j] << endl;
 				d.Term[i * b.cols + j] += Term[i * cols + k] * b.Term[k * b.cols + j];
 			}
-			cout << d.Term[i * b.cols + j] << endl;
+			// cout << d.Term[i * b.cols + j] << endl;
 		}
 	}
 	return d;
@@ -109,8 +109,23 @@ Matrix Matrix::Sub(Matrix b) {
 Matrix Matrix::Multiply2(Matrix b) {
 	if (cols != b.rows) cout << "Incompatible matrices" << endl;
 	Matrix bXpose = b.Transpose();
-	Matrix d(rows, b.cols);
+	bXpose.Display(); // 추가
+	Matrix d(rows, b.rows); // 수정
 	// Must be implemented by using bXpose
+	for (int i = 0; i < rows; i++)
+	{
+		for (int j = 0; j < bXpose.cols; j++)
+		{
+			//To be implemented
+			d.Term[i * bXpose.cols + j] = 0;
+			for (int k = 0; k < cols; k++)
+			{
+				//cout << Term[i * cols + k] << " " << b.Term[k * bXpose.cols + j] << endl;
+				d.Term[i * bXpose.cols + j] += Term[i * cols + k] * bXpose.Term[k * bXpose.cols + j];
+			}
+			// cout << d.Term[i * b.cols + j] << endl;
+		}
+	}
 	return d;
 }
 
@@ -171,6 +186,8 @@ int main()
 	d.Display(); // cout << d; // 옆에 것으로 바꿈
 	cout << "using transpose()" << endl;
 	t = b.Transpose();
+	a.Display(); // 추가
+	t.Display(); // 추가
 	c = a.Multiply2(t);
 	c.Display(); // cout << c; // 옆에 것으로 바꿈
 	system("pause");
