@@ -10,8 +10,9 @@ class Term
 {
 	friend Polynomial; // friend로 설정하면, 선언된 클래스의 private와 protected에 접근가능
 	// 연산자 오버로딩
-	friend istream& operator << (istream&, Polynomial&);
-	friend ostream& operator >> (ostream&, Polynomial&);
+	friend ostream& operator << (ostream&, Polynomial&);
+	friend istream& operator >> (istream&, Polynomial&);
+	
 private:
 	float coef; // 계수
 	int exp; // 지수
@@ -20,9 +21,9 @@ private:
 class Polynomial {
 public:
 	// 연산자 오버로딩
-	friend istream& operator << (istream&, Polynomial&);
-	friend ostream& operator >> (ostream&, Polynomial&);
-
+	friend ostream& operator << (ostream& out, Polynomial& p);
+	friend istream& operator >> (istream& in, Polynomial& p);
+	//Polynomial operator + (Polynomial& p);
 	Polynomial();
 	// construct the polynomial p(x) = 0;
 	Polynomial Add(Polynomial b);
@@ -44,26 +45,28 @@ private:
 	int terms;
 };
 // 쉬프트 연산자 오버로딩
+//istream& operator >> (istream& in, Polynomial& p) {
+//	int newTerms;
+//	float coef;
+//	int exp;
+//	in >> newTerms;
+//	for (int i = 0; i < newTerms; i++) {
+//		in >> coef >> exp;
+//		p.NewTerm(coef, exp);
+//	}
+//	return in;
+//}
+ostream& operator << (ostream& out, Polynomial& p) { 
+	out << p.Display() << endl;
+	return out;
+}
 istream& operator >> (istream& in, Polynomial& p) {
-	int newTerms;
-	float coef;
-	int exp;
-	in >> newTerms;
-	for (int i = 0; i < newTerms; i++) {
-		in >> coef >> exp;
-		p.NewTerm(coef, exp);
-	}
+	p.GetData();
 	return in;
 }
-//ostream& operator << (ostream& out, Polynomial& p) { // const Polynomial& p 이거를 바꾸었는데 괜찮은가???
-//	for (int i = 0; i < p.terms; i++) {
-//		if (p.termArray[i].coef && p.termArray[i].coef != 1 && p.termArray[i].coef != -1)
-//			out << p.termArray[i].coef;
-//
-//	}
+//Polynomial operator + (Polynomial& p) {
+//	this.Add(p);
 //}
-
-
 
 Polynomial::Polynomial() {
 	start = -1;
@@ -91,6 +94,7 @@ void Polynomial::NewTerm(const float theCoeff, const int theExp)
 	}
 	termArray[free].coef = theCoeff; // 계수칸에 넣고
 	termArray[free++].exp = theExp; // 지수칸에 넣고 // 마지막에 ++해서 나중에 들어오는것도 바로 들어올 수 있도록 하는거
+	return;
 }
 int Polynomial::GetData() {
 	int i, degree;
@@ -177,33 +181,42 @@ Polynomial Polynomial::Mult(Polynomial b) {
 	Polynomial c;
 	int aPos = start, bPos = b.start;
 	c.start = free; 
-
-	for (; aPos < finish; aPos++) {
+	/*cout << "start : " << aPos << '\n' << "finish : " << bPos << '\n';*/
+	for (aPos; aPos <= finish; aPos++) {
 		Polynomial m;
+		m.start = free + terms * b.terms;
 		float newCoef;
 		int newExp;
-		if (c.terms) { // c가 없으면
-			// m.start = c.start + c.terms; // 이거?
-			m.start = c.free;
-		}
-		else { // c가 있으면
-			// m.start = c.start + c.terms + 1; // 이거?
-			m.start = c.free;
-		}
+		//if (c.terms) { // c가 없으면
+		//	// m.start = c.start + c.terms; // 이거?
+		//	m.start = c.free;
+		//}
+		//else { // c가 있으면
+		//	// m.start = c.start + c.terms + 1; // 이거?
+		//	m.start = c.free;
+		//}
 
 		for (int bPos = b.start; bPos <= b.finish; bPos++) {
 			newCoef = termArray[aPos].coef * termArray[bPos].coef;
 			newExp = termArray[aPos].exp + termArray[bPos].exp;
-			m.NewTerm(newCoef, newExp);
+			if(newCoef)
+				m.NewTerm(newCoef, newExp);
+			/*m.finish = m.free - 1;*/
+			cout << "individual" << '\n';
+			m.Display(); // 이게 왜 안 나오지??????
+			
 			/*m.finish = free - 1;*/
-			c.Add(m); // 이거 넣으면 안되나?????
+			
 		}
+		m.finish = m.free - 1;
+		c.Add(m);
 		// n = n.Add(m); // n에 계속해서 차곡차곡 값들 쌓아주기
 		//c.finish = m.start - 1;
 		//c.terms = n.terms;
 		//c.start = m.finish; // 이게 맞나?
 	}
 	// 이렇게만 해도 되지 않을까?
+	c.finish = free - 1;
 	return c;
 }
 //Eval() 구현
@@ -227,20 +240,22 @@ int main(void) {
 	Polynomial P1, P2, P3, P4;
 	cout << "Instruction:- \nExample:-\nP(x)=5x^3+3x^1\nEnter the Polynomial like\nP(x) = 5x^3 + 0x^2 + 3x^1 + 0x^0\n";
 	cout << "Enter Polynomial1:-" << endl;
-	// P1.GetData();
-	cin >> P1;
+	P1.GetData();
+	//cin >> P1;
 	cout << "Enter Polynomial2:-" << endl;
-	// P2.GetData();
+	//P2.GetData();
 	cin >> P2;
 	cout << "Enter Polynomial3:-" << endl;
-	cin >> P3;
+	P3.GetData();
+	//cin >> P3;
+	cout << "test\n" << P1;
 	while (1) {
 		cout << "\n****** Menu Selection ******" << endl;
 		cout << "1: Addition\n2: Substraction\n3: Multiplication\n0: Exit" << endl;
 		cout << "Enter your choice:";
 		cin >> choice;
 		switch (choice) {
-		case1:
+		case 1:
 			cout << "\n--------------- Addition ---------------\n";
 			cout << "Polynomial1:";
 			P1.Display();
