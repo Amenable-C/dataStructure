@@ -199,7 +199,7 @@ Polynomial Polynomial::Add(Polynomial b) {
 			if (t) 
 				c.NewTerm(t, termArray[aPos].exp);
 			aPos++;
-			bPos++; // ¥Ÿ¿Ω≤® ¡ÿ∫Ò
+			bPos++; 
 		}
 		else if ((termArray[aPos].exp < b.termArray[bPos].exp)) { 
 			c.NewTerm(b.termArray[bPos].coef, b.termArray[bPos].exp);
