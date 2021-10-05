@@ -1,3 +1,4 @@
+#define _CRT_SECURE_NO_WARNINGS
 #include <iostream>
 #include <memory>
 #include "stackTemplate.h"
@@ -20,7 +21,7 @@ bool isOperand(char x) {
 		return true;
 }
 
-int isp(char a) {
+int isp(char a) { // 우선순위가 높을수록 값이 커짐
 	if (a == '(')
 		return 0;
 	else if (a == ')')
@@ -33,8 +34,8 @@ int isp(char a) {
 		return 0;
 }
 
-int icp(char a) {
-	if (a == '(')
+int icp(char a) { // 우선순위가 높을수록 값이 커짐
+	if (a == '(') // 괄호안에 괄호라는건가?
 		return 20;
 	else if (a == ')')
 		return 19;
@@ -54,26 +55,27 @@ Expression Postfix(Expression e) {
 		//cout << "x = " << x << endl;
 		if (isOperand(x)) // operand면 그냥 계속 출력
 			cout << x;
-		else if (x == '(') { // ')' -> '(' 로 바꿈
-			while (stack.Top() != ')') { // Last != ( // '(' -> ')' 로 바꿈
-				cout << stack.Top(); // 안에 있는거는 그냥 출력???? // 여기 고처야 할거 같은데? // 다시 Postfix해야 하는거 같은데
+		else if (x == ')') { // 계산이 끝났으므로 여기서 operator 다 출력
+			while (stack.Top() != '(') { // 괄호안에 새로운 괄호를 계산하기 전에 
+				cout << stack.Top(); 
 				stack.Pop(); 
 			}
-			stack.Pop(); // 괄호는 제거 해야함. 그래서 그냥 Pop으로 제거 // ')'를 제거한거
+			stack.Pop(); // '(' 제거
 		}
 		else { // 괄호를 제외한 operator이라는 말
-			for (; isp(stack.Top()) >= icp(x); stack.Pop()) // 따라오는거랑 비교해서 priority가 높은지 비교
-				cout << stack.Top(); //저절로 Pop이 되는건가???
-			stack.Push(x); // 왜 Push?? // 머지????
+			for (; isp(stack.Top()) >= icp(x); stack.Pop()) 
+				cout << stack.Top(); // isp >= icp 이면 그냥 바로 출력
+			stack.Push(x); // icp를 저장
 		}
 	}
 
 	char x;
-	while ((x = stack.Top()) != '#') { //LIFO 이라서 맨 바닥에 있는 #까지 될때까지 출력
+	while ((x = stack.Top()) != '#') { // 남은
 		cout << x;
 		stack.Pop();
 	}
 	cout << endl;
+	return 0;
 }
 
 void Eval(Expression e) { // 계산 값을 출력하는거 같음.
@@ -92,12 +94,16 @@ void Eval(Expression e) { // 계산 값을 출력하는거 같음.
 	}
 }
 
-void main() {
+int main() {
 	index = 0;
 	Expression infix, postfix;
+	infix = (char*)malloc(sizeof(char) * 100);
 	scanf("%s", infix);
-	cout << infix << endl;
+	//cin >> infix;
+	cout << "infix : " << infix << endl;
+	cout << "postfix : ";
 	postfix = Postfix(infix); // 전환을 하는거
 	Eval(postfix); 
 	cout << postfix << endl;
+	return 0;
 }
