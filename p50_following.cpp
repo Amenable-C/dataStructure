@@ -85,8 +85,76 @@ void Chain<T>::Add(const T& element) { // add a new node after first
 
 template<class T>
 void Chain<T> ::Invert() {
-	ChainNode<T>* p = first, * 1 = 0; // q trails p
+	ChainNode<T>* p = first, * q = 0; // q trails p
 	while (p) {
-		ChainNode<T>*r 
+		ChainNode<T>* r = q; q = p; //r trails q
+		p = p->link; //p moves to next node
+		q->link = r; //link q to preceding node
+	}
+	first = q;
+}
+
+template<class T>
+void Chain<T>::Concatenate(Chain<T> b) {
+	ChainNode<T>* p;
+	if (!first) {
+		first = b.first;
+		return;
+	}
+	if (b.first) {
+		//No loop body in this for loop. It just moves the pointer 'p' to the end of the A chain.
+		for (p = first; p->link; p = p->link);
+		p->link = b.first;
 	}
 }
+
+//pre-increment
+template<class T>
+ChainIterator<T>& ChainIterator<T>:: operator ++() {
+	current = current->link;
+	return *this;
+}
+
+//post increment
+template<class T>
+ChainIterator<T> ChainIterator <T>:: operator ++(int) {
+	ChainIterator<T> old = *this;
+	current = current->link;
+	return old;
+}
+
+//check the current element in list in non-null
+template<class T>
+bool ChainIterator<T>::NotNull() {
+	if (current) return 1;
+	else return 0;
+}
+
+//check teh next element in list is non-null
+template<class T>
+bool ChainIterator<T>::NextNotNull() {
+	if (current && current->link)
+		return 1;
+	else return 0;
+}
+
+//return a pointer to the first element of list
+template<class T>
+T* ChainIterator<T>::First() {
+	if (list.first)
+		return &list.first->data;
+	else
+		return 0;
+}
+
+//return a pointer to the next element of list
+template<class T>
+T* ChainIterator<T>::Next() {
+	if (current) {
+		current = current->link;
+		return
+			&current->data;
+	}
+	else return 0;
+}
+
