@@ -77,7 +77,7 @@ public:
 		return current != NULL && iter.current != NULL;
 	}
 	bool isEmpty() const {
-		return current == NULL:
+		return current == NULL;
 	}
 	//increment
 	ChainIterator& operator ++(); //preincrement
@@ -104,9 +104,9 @@ public:
 	void add(T coef, T exponent);
 	void addAll(Polynomial<T>* poly);
 	void display();
+	int Evaluate(int) const; // f(x)에 대하여 x에 대한 값을 구한다
+	Polynomial<T> Multiply(Polynomial<T>&); // f(x) * g(x)
 	/*
-	T Evaluate(T&) const; // f(x)에 대하여 x에 대한 값을 구한다
-	polynomial<T> Multiply(Polynomial<T>&); // f(x) * g(x)
 	Polynomial(const Polynomial& p); // copy constructor
 	friend istream& operator>>(istream&, Polynomial&); // polynomial 입력
 	friend ostream& operator<<(ostream&, Polynomial&); // polynomial 출력
@@ -117,6 +117,7 @@ public:
 private:
 	Chain<Term<T>> poly;
 };
+
 
 template<typename valType>
 inline ostream& operator<<(ostream& os, const Term<valType>& term) {
@@ -132,7 +133,7 @@ ChainNode<T>::ChainNode(const T& element) {
 
 template<class T>
 void Chain<T>::Delete(void) { //delete the first element after first
-	ChainNode<T>& current, * next;
+	ChainNode<T>* current, * next;
 	next = first->link;
 	if (first != nullptr) { // non-empty list
 		ChainNode<T>* temp = first;
@@ -141,6 +142,50 @@ void Chain<T>::Delete(void) { //delete the first element after first
 	}
 	else cout << "Empty List : Not deleted" << endl;
 }
+/////////////////////////////////////////////////////////////////////////////////////////
+template<class T>
+Polynomial<T> Polynomial<T>::Multiply(Polynomial<T>& b) {
+	Term<T> temp;
+	ChainIterator<Term<T>> ai = poly.begin(), bi = b.poly.begin();
+	Polynomial<T> d;
+	Polynomial<T> c; 
+	while (ai && bi) {
+		int sumCoef = ai->coef * bi->coef;
+		int sumExp = ai->exp + bi->exp;
+		if (sumCoef)
+		{
+			c.poly.InsertBack(temp.Set(sumCoef, sumExp));
+		}
+		bi++;
+		if (bi.isEmpty()){
+			//d = d + c;
+			bi = b.poly.begin();
+			ai++;
+			//
+			//
+		}
+	}
+	return c;
+}
+
+template<class T>
+int Polynomial<T>::Evaluate(int x) const {
+	//ChainNode<T>* newX = new ChainNode<T>(x);
+	ChainIterator<Term<T>> ai = poly.begin();
+	int sum = 0;
+	while (!ai.isEmpty()) {
+		int times = ai->exp;
+		int eachResult = ai->coef;
+		for (times; times > 0; times--) {
+			eachResult *= x;
+		}
+		sum += eachResult;
+		ai++;
+	}
+	return sum;
+}
+/////////////////////////////////////////////////////////////////////////////////////////
+
 
 template<class T>
 void Chain<T>::Add(const T& element) { // add a new node after first
@@ -178,7 +223,7 @@ void Chain<T>::Concatenate(Chain<T> b) {
 }
 
 template<class T>
-void Chain<T>::InsertBack(const T& elemente) {
+void Chain<T>::InsertBack(const T& element) {
 	ChainNode<T>* newnode = new ChainNode<T>(element);
 	if (!first) {//insert into empty list
 		first = newnode;
