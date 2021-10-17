@@ -105,6 +105,54 @@ void Chain<T>::Concatenate(Chain<T> b) {
 }
 
 //pre-increment
+template<class T>
+ChainIterator<T>& ChainIterator<T>:: operator++() {
+	current = current->link;
+	return this;
+}
+
+//post increment
+template<class T>
+ChainIterator<T> ChainIterator<T>::operator ++(int) {
+	ChainIterator<T> old = *this;
+	current = current->link;
+	return old; //다음단계로 넘어가기 전에꺼라는 건가? // 그래서 reference를 안 쓴건가?
+}
+
+template<class T>
+bool ChainIterator<T>::NotNull() {
+	if (current)
+		return 1;
+	else
+		return 0;
+}
+
+template<class T>
+bool ChainIterator<T>::NextNotNull() {
+	if (current && current->link)
+		return 1;
+	else
+		return 0;
+}
+
+template<class T>
+T* ChainIterator<T>::First() {
+	if (!list.first)
+		return &list.first->data;
+	else
+		return 0;
+}
+
+template<class T>
+T* ChainIterator<T>::Next() {
+	if (current) {
+		current = current->link;
+		return &current->data; //Next()하면 데이터를 주는거고, 아니면 위에서 정의한 operator 구분
+	}
+	else
+		return 0;
+}
+
 
 
 template <class T>
