@@ -41,3 +41,18 @@ private:
 	DoublyListNode<T>* last;
 	static DoublyListNode<T>* av;
 };
+
+template<class T>
+class CircularDoublyListIterator {
+public:
+	CircularDoublyListIterator(const CircularDoublyList<T>& l) : list(l) {
+		current = l.first->rlink;
+	}
+	T* Next();
+	T* First();
+	bool NotNull();
+	bool NextNotNull();
+private:
+	const CircularDoublyList<T>& list;
+	DoublyListNode<T>* current;
+};
