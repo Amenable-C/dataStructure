@@ -62,6 +62,8 @@ public:
 	void Add();
 	void Delete();
 	Node* Search(Data);
+	int Equal(const List&);
+	Node* Copy();
 private:
 	Node* first;
 };
@@ -148,24 +150,27 @@ void List::Add() {
 		}
 	else {
 		switch (value) {
-		case 0:
+		case 0:{
 			cin >> c;
 			Node* n = new DerivedNode<char>(c);
 			n->link = first;
 			first = n;
 			break;
-		case 1:
+		}
+		case 1:{
 			cin >> value;
 			Node* na = new DerivedNode<int>(value);
 			na->link = first;
 			first = na;
 			break;
-		case 2:
+		}
+		case 2:{
 			cin >> num;
 			Node* nb = new DerivedNode<float>(num);
 			nb->link = first;
 			first = nb;
 			break;
+		}
 		default:
 			break;
 		}
@@ -311,15 +316,73 @@ void PrintAll(const List& l) {
 			cout << " + ";
 	}
 }
-
 //float sum(l); // sum of all floating points
+
+int List::Equal(const List& l) {
+	// 일단 형식 생각 안하고 다 하기
+	ListIterator liOrigin(*this);
+	ListIterator liCompare(l);
+	Data originValue = *liOrigin.First();
+	Data compareValue = *liCompare.First();
+	while (originValue == compareValue) {
+		if (originValue.id != compareValue.id) {
+			return 1;
+		}
+		if (liOrigin.NextNotNull() && liCompare.NextNotNull()) {
+			return 0;
+		}
+		++liOrigin;
+		++liCompare;
+	}
+	return 1;
+	
+}
+
+Node* List::Copy() {
+	int value;
+	float num;
+	char c;
+	
+	ListIterator li(*this);
+	List q;
+	Data liValue = *li.First();
+	switch (liValue.id) {
+	case 0:
+		q.first = new DerivedNode<char>(liValue.c);
+	case 1:
+		q.first = new DerivedNode<int>(liValue.i);
+	case 2:
+		q.first = new DerivedNode<float>(liValue.f);
+	}
+	
+	while (li.NextNotNull() == true) {
+		++li;
+		liValue = li.GetCurrent();
+		switch (liValue.id) {
+			case 0: {
+				Node* n = new DerivedNode<char>(liValue.c);
+				// 마지막에 링크를 계속 이어붙이고 싶은데, 이럴려면 마지막꺼를 알아야하는데,...// 이래서 계속first 로 넣었구나...
+			}
+			case 1: {
+				Node* na = new DerivedNode<int>(liValue.i);
+			}
+			case 2: {
+				Node* nb= new DerivedNode<float>(liValue.f);
+			}
+		}
+	}
+	Node* q = 0;
+	// Add에서 처럼 new DerivedNode해서 하는거 같은데?
+	// Node
+}
 
 int main(void) {
 	List l;
+	List m;
 	//implement heterogeneous linked stacks and queus
 	char select;
 	int max = 0, x = 0;
-	cout << "Select comman a: add data, d: delete data, p: print all, q: quit =>";
+	cout << "Select comman a: add data, d: delete data, p: print all, q: quit, c : copy, e : equal =>";
 	cin >> select;
 	while (select != 'q') {
 		switch (select) {
@@ -337,12 +400,20 @@ int main(void) {
 		case 'q':
 			cout << "Quit" << endl;
 			break;
+		case 'c':
+			cout << "l : origin, m : copy" << endl;
+			m.Copy();
+			break;
+		case 'e':
+			cout << "equal : 0, ineqaul : 1" << endl;
+			cout << l.Equal(l) << endl;
+			break;
 		default:
 			cout << "WRONG INPUT " << endl;
 			cout << "Re-Enter" << endl;
 			break;
 		}
-		cout << "Select comman a: add data, d: delete data, p: print all, q: quit =>";
+		cout << "Select comman a: add data, d: delete data, p: print all, q: quit, c : copy, e : equal =>";
 		cin >> select;
 	}
 	system("pause");
