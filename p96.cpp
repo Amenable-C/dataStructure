@@ -2,6 +2,7 @@
 #include <string>
 #include <cctype>
 using namespace std;
+
 enum boolean{FALSE, TRUE};
 struct Data {
 	int id; // id = 0, 1, 2, if the node contains char, int ,float
@@ -63,9 +64,10 @@ public:
 	void Delete();
 	Node* Search(Data);
 	int Equal(const List&);
-	Node* Copy();
+	void Copy(const List&);
 private:
 	Node* first;
+	Node* Copy(Node*);
 };
 
 class ListIterator {
@@ -337,44 +339,33 @@ int List::Equal(const List& l) {
 	return 1;
 	
 }
-
-Node* List::Copy() {
-	int value;
-	float num;
-	char c;
-	
-	ListIterator li(*this);
-	List q;
-	Data liValue = *li.First();
-	switch (liValue.id) {
-	case 0:
-		q.first = new DerivedNode<char>(liValue.c);
-	case 1:
-		q.first = new DerivedNode<int>(liValue.i);
-	case 2:
-		q.first = new DerivedNode<float>(liValue.f);
-	}
-	
-	while (li.NextNotNull() == true) {
-		++li;
-		liValue = li.GetCurrent();
-		switch (liValue.id) {
-			case 0: {
-				Node* n = new DerivedNode<char>(liValue.c);
-				// 마지막에 링크를 계속 이어붙이고 싶은데, 이럴려면 마지막꺼를 알아야하는데,...// 이래서 계속first 로 넣었구나...
-			}
-			case 1: {
-				Node* na = new DerivedNode<int>(liValue.i);
-			}
-			case 2: {
-				Node* nb= new DerivedNode<float>(liValue.f);
-			}
-		}
-	}
-	Node* q = 0;
-	// Add에서 처럼 new DerivedNode해서 하는거 같은데?
-	// Node
+void List::Copy(const List& l) {
+	first = l.first;
 }
+
+//Node* List::Copy(Node* p) {
+//	Node* q = 0;
+//	Data tmp = p->GetData();
+//	//Data tmp = ;
+//	if (p) {
+//			switch (tmp.id) {
+//			case 0:
+//				q = new DerivedNode<char>(tmp.c);
+//			case 1:
+//				q = new DerivedNode<int>(tmp.i);
+//			case 2:
+//				q = new DerivedNode<float>(tmp.f);
+//			}
+//			
+//			//q->GetData = p->GetData();
+//			q->link = Copy(p->link);
+//		
+//		//tmp = p->link->GetData();
+//		//tmp = p->link;
+//		q->link = p->link;
+//	}
+//	return q;
+//}
 
 int main(void) {
 	List l;
@@ -402,11 +393,15 @@ int main(void) {
 			break;
 		case 'c':
 			cout << "l : origin, m : copy" << endl;
-			m.Copy();
+			m.Copy(l);
+			cout << "The m, the copy version, is : ";
+			PrintAll(m);
+			cout << endl;
 			break;
 		case 'e':
+			cout << "comparing the l and m(= l's copy version)" << endl;
 			cout << "equal : 0, ineqaul : 1" << endl;
-			cout << l.Equal(l) << endl;
+			cout << l.Equal(m) << endl;
 			break;
 		default:
 			cout << "WRONG INPUT " << endl;
