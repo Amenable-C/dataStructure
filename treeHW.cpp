@@ -55,16 +55,23 @@ public:
 
 // 5
 class InorderIterator {
+	friend class Tree;
 public:
 	char* Next();
-	InorderIterator(Tree tree) : t(tree) {
+	//void Next();
+	InorderIterator(Tree& tree) : t(tree) {
 		CurrentNode = t.root; // 처음꺼를 CurrentNode로 세팅
 	}
 private:
+	//char* Next(TreeNode*);
 	Tree t;
 	Stack<TreeNode*> s;
 	TreeNode* CurrentNode;
 };
+
+//void InorderIterator::Next() {
+//	Next(CurrentNode);
+//}
 
 // 6
 char* InorderIterator::Next() {
@@ -78,7 +85,10 @@ char* InorderIterator::Next() {
 		CurrentNode = CurrentNode->RightChild; // 그냥 계속 inorder는 돌면서, 값을 저장하는거
 		return &temp; // 이게 다른 쪽에서 Next()를 부르면 리턴 값
 	}
-	else return 0;
+	
+	else 
+		return 0;
+	
 }
 
 void Tree::inorder() {
@@ -156,7 +166,7 @@ int equal(TreeNode* a, TreeNode* b) {
 	return 0;
 }
 
-// Insert for Prefix
+// Insert for Prefix /////////////////// 과제 1번 ///////////////////
 bool Tree::Insert(char x) {
 	Stack<TreeNode*> sForInsert;
 	TreeNode* CurrentNode = root;
@@ -326,11 +336,26 @@ int main() {
 	char select = 'i';
 	int max = 0;
 	char x = 0;
+	char* nextReturn = 0;
+	/*t.Insert('*');
+	t.Insert('a');*/
+	InorderIterator k = t;
 	while (select != 'q') {
 		cout << endl;
-		cout << "BinarySearchTree. Selet i : insert the prefix, d : Display(inorder), e : Nonreclnorder, f : preorder, g : postorder, h : copy and compare, q : Quit =>";
+		cout << "BinarySearchTree. Selet i : insert the prefix, d : Display(inorder), e : Nonreclnorder, f : preorder, g : postorder, h : copy and compare, n : inorder using next, q : Quit =>";
 		cin >> select;
 		switch (select) {
+		case 'n': // Next()로 inorder출력하기. /////////////////// 과제 2번 ///////////////////
+			k = t;
+			cout << "inorder using next : ";
+			nextReturn = k.Next();
+			while (nextReturn != 0) {
+				cout << *nextReturn;
+				cout << " ";
+				nextReturn = k.Next();
+			}
+			cout << endl;
+			break;
 		case 'i':
 			cout << "The number of items = ";
 			cin >> max;
