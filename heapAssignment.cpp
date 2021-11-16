@@ -8,6 +8,7 @@ bool compare(Type a, Type b) {
 
 using namespace std;
 const int HeapSize = 10000000;
+int num = 5000000;
 enum Boolean { FALSE, TRUE };
 
 template <class Type>
@@ -166,7 +167,7 @@ int main() {
 	Element<int>* deletedEle = nullptr;
 
 	// 난수를 이용하여 heap 생성
-	int num = 5000000;
+	
 	for(int t = 0; t < num; t++) {
 		data = rand() % num;
 		heapUnordered.Insert(Element<int>(data));
@@ -186,22 +187,25 @@ int main() {
 	heapUnordered.Insert(Element<int>(data));
 	end = time(NULL);
 	result = (double)(end - start);
-	cout << "Time for unordered insert: " << result;
+	cout << "Time for unordered insert: " << result << endl;
 
 	start = time(NULL);
-	heapOrdered.Insert(Element<int>(data));
+	heapOrdered.orderedInsert(Element<int>(data));
 	end = time(NULL);
-	result - (double)(end - start);
-	cout << "Time for ordered insert: " << result;
+	result = (double)(end - start);
+	cout << "Time for ordered insert: " << result << endl;
 
+	start = time(NULL);
+	heapUnordered.DeleteMax(ele);
+	end = time(NULL);
+	result = (double)(end - start);
+	cout << "Time for unordered delete: " << result << endl;
 
-
-
-
-
-
-	
-
+	start = time(NULL);
+	heapOrdered.orderedDeleteMax(ele);
+	end = time(NULL);
+	result = (double)(end - start);
+	cout << "Time for ordered delete: " << result << endl;
 
 	system("pause");
 	return 0;
