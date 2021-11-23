@@ -108,8 +108,9 @@ void BstNode::treeprint(int l) {
 		(this->RightChild)->treeprint(l + 1);
 		for (int i = 1; i <= l; i++)
 			cout << "    ";
-		cout << this->data.key << "\n";
-		(this->LeftChild)->treeprint(l - 1); // 여기서 "l-1" 해야하는거 아닌가?
+		// cout << this->data.key << "\n"; // 이게 맞는거 
+		cout << this->data.key << "[" << this->LeftSize << "]" << "\n"; // leftsize 잘 맞는지 확인
+		(this->LeftChild)->treeprint(l + 1); // 여기서 "l-1" 해야하는거 아닌가?
 	}// 이것도 this가 있는지 확인하고, 거기서 recursive돌리는거
 }
 
@@ -158,26 +159,26 @@ BstNode* BST::IterSearch(const Element& x) {
 bool BST::Insert(const Element& x) {
 	BstNode* p = root;
 	BstNode* q = 0;
-	BstNode* changingPoint = root; // LeftSize의 값들을 바꿔주기 위한 기준점 // RightChild가 없을수도 있기 때문에 root를 기준
+	//BstNode* changingPoint = 0; // root라고 안해도 될거 같은데
+	//int toChecktheChangingPoint = 0;
 	while (p) {
 		q = p;
 		if (x.key == p->data.key)
 			return false; // x.key is already in t
 		if (x.key < p->data.key) {
+			p->LeftSize = p->LeftSize + 1;
 			p = p->LeftChild; // 왼쪽으로 가는거
 		}
 		else {
 			p = p->RightChild; // 오른쪽으로 가는거
-			changingPoint = p; // 계속해서 노드가 바뀌다가 결국 바꿔주기 시작해야 하는 시점으로 결정됨.
 		}
 	} // 여기까지는 위치를 찾는거
 	p = new BstNode; // 해당위치에 연결시키는 입력 및 과정
 	p->LeftChild = p->RightChild = 0; // 초기화
+	p->LeftSize = 1;
 	p->data = x; // 입력
 	if (!root) { //root가 없으면 root에 위치
 		root = p;
-		//p->LeftSize = 1;
-		//return true;
 	}
 	else if (x.key < q->data.key){
 		q->LeftChild = p; // 이렇게 해야지 노드끼리 연결 // 작을 경우
@@ -185,12 +186,6 @@ bool BST::Insert(const Element& x) {
 	else{
 		q->RightChild = p; // 노드끼리 연결 // 클 경우
 	}
-	// LeftSize 관련 코드 // insert 된 거는 1로 // 오른쪽으로 쭉 타고 올라가면서 +1 다 해주기
-	//p->LeftSize = 1; // insert하면 항상 child가 없으므로 LeftSize = 1로 초기화
-	//while (changingPoint != p) { // p라는 노드가 생겼기 때문에 위에 하나씩 더해주는거
-	//	changingPoint->LeftSize = changingPoint->LeftSize + 1;
-	//	changingPoint = changingPoint->LeftChild; // 밑으로 이동
-	//}
 	return true;
 }
 
@@ -199,36 +194,53 @@ bool BST::Delete(const Element& x) {
 	BstNode* q = 0;
 	BstNode* childNodeForQ = 0;
 	BstNode* forLink = 0;
-	BstNode* changingPoint = root; // LeftSize의 값들을 바꿔주기 위한 기준점
+	int rightLeft = 0; // q를 기준으로 p가 RightChild인지 LeftChild인지 확인하기 위한 용도 // R = 1, L = 0
 
-	while(p->data.key != x.key) { // 이렇게 key로 해야지 찾을려고 하는 값들을 비교하는 건가?
+	while(p->data.key != x.key) { // 일단 값이 있는지 먼저 확인
 		q = p;
 		if (p->data.key > x.key) {
 			p = p->LeftChild;
 		}
 		else { // p->data.key < x.key 인 경우
 			p = p->RightChild;
-			changingPoint = p; // 계속해서 노드가 바뀌다가 결국 바꿔주기 시작해야 하는 시점으로 결정됨.
+		}
+		if (p == 0) {
+			cout << "There is no delete value" << endl;
+			return true;
 		}
 	}
 
-	// LeftSize 변경 // changingPoint를 기준으로 q까지 -1 해줘야함. // 근데 changingPoint == p 라는 말은 RightChild를 없애는 거라서 LeftSize 만지면 안됨.
-	while (changingPoint != p) { // p가 아닐때까지, 즉 q일때까지 다 (-1)을 해준다는 거.
-		changingPoint->LeftSize = changingPoint->LeftSize - 1;
-		changingPoint = changingPoint->LeftChild; // 밑으로 이동
+	p = root;
+	q = 0;
+	while (p->data.key != x.key) { // 이렇게 key로 해야지 찾을려고 하는 값들을 비교하는 건가?
+		q = p;
+		if (p->data.key > x.key) {
+			p->LeftSize = p->LeftSize - 1;
+			p = p->LeftChild;
+			rightLeft = 0;
+		}
+		else { // p->data.key < x.key 인 경우
+			p = p->RightChild;
+			rightLeft = 1;
+		}
+		if (p == 0) {
+			cout << "There is no delete value" << endl;
+			return true;
+		}
 	}
 
-	////////////여기 수정해야 함!! ///////////합치면 LeftSize 어떻게 되는지 생각!!
-	if (p->LeftChild && p->RightChild) { // 여기 LeftSize다 바꿔줘야 하는데??? 이게 또 위에까지 changingPoint까지 영향을 끼치는데??.....
+	if (p == root) { 
+		delete p;
+		return true;
+	}
+	
+	if (p->LeftChild && p->RightChild) {
 		forLink = p; // 지워야 하는 p
-		int AddLeftSize = forLink->LeftChild->LeftSize; // 이거를 밑에 while 돌릴때 다 add해줘야 함
 		p = p->RightChild;
 		while (p->LeftChild) {
-			p->LeftSize = p->LeftSize + AddLeftSize; // 합치고 나서 완성되는 LeftSize를 먼저 해주기
 			p = p->LeftChild;
 		}
 		p->LeftChild = forLink->LeftChild; // 원래 p를 parent로 공유하는걸 하나로 연결
-		//p->LeftChild = forLink->LeftChild; // 
 		childNodeForQ = forLink->RightChild; // 결국 이렇게 줘서 위에 q랑 연결하고자 하는거
 	}
 	else if (p->RightChild) { // RightChild만 있는거 // LeftSize 추가적으로 고려X
@@ -240,16 +252,19 @@ bool BST::Delete(const Element& x) {
 	else { // 둘다 없는거 // LeftSize 추가적으로 고려 X
 		q->LeftChild = 0;
 		q->RightChild = 0;
-		q->LeftSize = 1;
 		delete p; // 이렇게만 해놓고 없애도 되는건가?
 		return true;
 	}
 	
-	
-
-
 	// q랑 childNodeForQ 연결해주기
 	// 현재 p가 q의 RightChild인지 LeftChild인지 모르므로 확인해서 연결해주기
+	if (p == 0) {
+		q->LeftChild = p;
+	}
+	else {
+		q->RightChild = p;
+	}
+
 
 
 	
@@ -313,7 +328,7 @@ int main() {
 	Element* tempEle;
 
 	do {
-		cout << "binary search tree. Select : 1 insert, 2 display, 3 split and join, >= 5 exit" << endl;
+		cout << "binary search tree. Select : 1 insert, 2 delete, 3 display, 4 split and join, >= 5 exit" << endl;
 		cin >> select;
 		switch (select) {
 		case 1:
@@ -323,9 +338,15 @@ int main() {
 			tree.treeprint();
 			break;
 		case 2:
-			tree.display();
+			cout << "delete value: ";
+			cin >> data;
+			tree.Delete(Element(data));
+			tree.treeprint();
 			break;
 		case 3:
+			tree.display();
+			break;
+		case 4:
 			cout << "input splited tree note: ";
 			cin >> data;
 			tempEle = tree.Split(data, splitTree1, splitTree2, ele);
