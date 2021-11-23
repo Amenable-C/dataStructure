@@ -30,6 +30,7 @@ public:
 	//bool Delete(const Element&);
 	BstNode* Search(const Element&);
 	BstNode* IterSearch(const Element&);
+	BstNode* Search(int k);
 
 	BST* ThreeWayJoin(BST* A, Element* x, BST* B);
 	BST* TwoWayJoin(BST* A, BST* B);
@@ -141,26 +142,78 @@ BstNode* BST::IterSearch(const Element& x) {
 	return 0;
 }
 
-//BstNode* BST::Search(int k) { //Search by rank;
-//	BstNode* t = root;
-//	while (1) {
-//		if (k == t->LeftChild)
-//			return t;
-//		if (k < t->LeftChild)
-//			t = t->LeftChild;
-//		else {
-//			k -= LeftSize;
-//			t = t->RightChild;
-//		}
-//	}
-//	return 0;
-//}
+BstNode* BST::Search(int k) { //Search by rank;
+	BstNode* p = root;
+	BstNode* q = 0;
+	int kRank = 0;
+
+	while (p) {
+		q = p;
+		if (k == p->LeftSize) {
+			cout << p->data.key << endl;
+			return 0; 
+		}
+		if (k < p->LeftSize) {
+			p = p->LeftChild; 
+		}
+		else {
+			kRank = kRank + p->LeftSize;
+			p = p->RightChild; 
+			break;
+		}
+	}
+
+	while (p) {
+		if (k == kRank + p->LeftSize) {
+			cout << p->data.key << endl;
+			return 0; 
+		}
+
+		if (k > kRank + p->LeftSize) {
+			kRank = kRank + p->LeftSize;
+			p = p->RightChild;
+		}
+		else { 
+			p = p->LeftChild;
+		}
+	}
+	cout << "k is wrong" << endl;
+	return 0;
+
+	/*BstNode* t = root;
+	while (1) {
+		if (k == t->LeftChild)
+			return t;
+		if (k < t->LeftChild)
+			t = t->LeftChild;
+		else {
+			k -= LeftSize;
+			t = t->RightChild;
+		}
+	}
+	return 0;*/
+}
 
 bool BST::Insert(const Element& x) {
 	BstNode* p = root;
 	BstNode* q = 0;
 	//BstNode* changingPoint = 0; // root라고 안해도 될거 같은데
 	//int toChecktheChangingPoint = 0;
+	while (p) {
+		q = p;
+		if (x.key == p->data.key){
+			cout << "Insert value already exists" << endl;
+			return false; // x.key is already in t
+		}
+		if (x.key < p->data.key) {
+			p = p->LeftChild; // 왼쪽으로 가는거
+		}
+		else {
+			p = p->RightChild; // 오른쪽으로 가는거
+		}
+	}
+	p = root;
+	q = 0;
 	while (p) {
 		q = p;
 		if (x.key == p->data.key)
@@ -223,10 +276,6 @@ bool BST::Delete(const Element& x) {
 			p = p->RightChild;
 			rightLeft = 1;
 		}
-		if (p == 0) {
-			cout << "There is no delete value" << endl;
-			return true;
-		}
 	}
 
 	if (p == root) { 
@@ -234,13 +283,15 @@ bool BST::Delete(const Element& x) {
 		return true;
 	}
 	
-	if (p->LeftChild && p->RightChild) {
+	if (p->LeftChild && p->RightChild) { // 둘 다 있을 경우 합쳐줘야 함
 		forLink = p; // 지워야 하는 p
-		p = p->RightChild;
-		while (p->LeftChild) {
+		p = p->RightChild; 
+		BstNode* qq = 0;
+		while (p->LeftChild) { // delete되는 노드를 기준으로 rightchild의 가장 작은 노드를 leftchild에 연결
+			qq = p;
 			p = p->LeftChild;
 		}
-		p->LeftChild = forLink->LeftChild; // 원래 p를 parent로 공유하는걸 하나로 연결
+		qq->LeftChild = forLink->LeftChild; // 연결
 		childNodeForQ = forLink->RightChild; // 결국 이렇게 줘서 위에 q랑 연결하고자 하는거
 	}
 	else if (p->RightChild) { // RightChild만 있는거 // LeftSize 추가적으로 고려X
@@ -249,20 +300,24 @@ bool BST::Delete(const Element& x) {
 	else if(p->LeftChild) { // LeftChild만 있는거 // LeftSize 추가적으로 고려X 
 		childNodeForQ = p->LeftChild;
 	}
-	else { // 둘다 없는거 // LeftSize 추가적으로 고려 X
-		q->LeftChild = 0;
-		q->RightChild = 0;
+	else { // 둘다 없는거 // LeftSize 추가적으로 고려 X ////////////////////////////여기 다시 체크
+		if (rightLeft == 0) {
+			q->LeftChild = 0;
+		}
+		else {
+			q->RightChild = 0;
+		}
 		delete p; // 이렇게만 해놓고 없애도 되는건가?
 		return true;
 	}
-	
+	delete p;
 	// q랑 childNodeForQ 연결해주기
 	// 현재 p가 q의 RightChild인지 LeftChild인지 모르므로 확인해서 연결해주기
-	if (p == 0) {
-		q->LeftChild = p;
+	if (rightLeft == 0) {
+		q->LeftChild = childNodeForQ;
 	}
 	else {
-		q->RightChild = p;
+		q->RightChild = childNodeForQ;
 	}
 
 
@@ -328,7 +383,7 @@ int main() {
 	Element* tempEle;
 
 	do {
-		cout << "binary search tree. Select : 1 insert, 2 delete, 3 display, 4 split and join, >= 5 exit" << endl;
+		cout << "binary search tree. Select : 1 insert, 2 delete, 3 display, 4 Search(k) 5 split and join, >= 6 exit" << endl;
 		cin >> select;
 		switch (select) {
 		case 1:
@@ -347,6 +402,12 @@ int main() {
 			tree.display();
 			break;
 		case 4:
+			cout << "put the Kth rank" << endl;
+			int k;
+			cin >> k;
+			tree.Search(k);
+			break;
+		case 5:
 			cout << "input splited tree note: ";
 			cin >> data;
 			tempEle = tree.Split(data, splitTree1, splitTree2, ele);
@@ -370,10 +431,10 @@ int main() {
 				joinTree->treeprint();
 			}
 			break;
-		case 5:
+		case 6:
 			exit(1);
 			break;
 		}
-	} while (select < 5);
+	} while (select < 6);
 	return 0;
 }
