@@ -14,7 +14,7 @@ public:
 	void display(int i);
 	void treeprint(int i);
 private:
-	int LeftSize; // LeftChild가 몇개 달려있는지 나타내는 것
+	int LeftSize; // 자신 + LeftChild가 몇개 달려있는지 나타내는 것
 	Element data;
 	BstNode* LeftChild, * RightChild;
 };
@@ -26,7 +26,7 @@ public:
 	}
 	//BST& operator=(const BST&);
 	bool Insert(const Element& x);
-	bool Delete(const Element& x); // const 붙여야 하나?
+	bool Delete(const Element& x); 
 	//bool Delete(const Element&);
 	BstNode* Search(const Element&);
 	BstNode* IterSearch(const Element&);
@@ -76,7 +76,7 @@ Element* BST::Split(int i, BST& B, BST& C, Element& x) {//Split the binary searc
 	BstNode* R = Z;
 	BstNode* t = root;
 	while (t)
-		if (i == t->data.key) { // split at t // data.key가 머지???
+		if (i == t->data.key) { 
 			L->RightChild = t->LeftChild;
 			R->LeftChild = t->RightChild;
 			x = t->data;
@@ -102,27 +102,27 @@ Element* BST::Split(int i, BST& B, BST& C, Element& x) {//Split the binary searc
 	C.root = Z->LeftChild;
 	delete Z;
 	return 0;
-} //이거 다시 확인하기. // 잘 모르겠음
+} 
 
 void BstNode::treeprint(int l) {
 	if (this) {
 		(this->RightChild)->treeprint(l + 1);
 		for (int i = 1; i <= l; i++)
 			cout << "    ";
-		// cout << this->data.key << "\n"; // 이게 맞는거 
-		cout << this->data.key << "[" << this->LeftSize << "]" << "\n"; // leftsize 잘 맞는지 확인
-		(this->LeftChild)->treeprint(l + 1); // 여기서 "l-1" 해야하는거 아닌가?
-	}// 이것도 this가 있는지 확인하고, 거기서 recursive돌리는거
+		// cout << this->data.key << "\n"; // origin
+		cout << this->data.key << "[" << this->LeftSize << "]" << "\n"; // leftsize와 함께 나타내기 위한 용도
+		(this->LeftChild)->treeprint(l + 1); 
+	}
 }
 
-BstNode* BST::Search(BstNode* b, const Element& x) { // 여기서 노드를 왜 주는거지? // root부터 찾을려고 주는건가?
+BstNode* BST::Search(BstNode* b, const Element& x) { 
 	if (!b)
 		return 0;
 	if (x.key == b->data.key)
 		return b;
-	if (x.key < b->data.key) // 왼쪽으로 가는거
+	if (x.key < b->data.key) 
 		return Search(b->LeftChild, x);
-	return Search(b->RightChild, x); // 오른쪽으로 가는거
+	return Search(b->RightChild, x); 
 	//recursive임
 }
 
@@ -134,9 +134,9 @@ BstNode* BST::IterSearch(const Element& x) {
 	for (BstNode* t = root; t;) {
 		if (x.key == t->data.key)
 			return t;
-		if (x.key < t->data.key) // 왼쪽으로 가는거
+		if (x.key < t->data.key) 
 			t = t->LeftChild;
-		else // 오른쪽으로 가는거
+		else 
 			t = t->RightChild;
 	}
 	return 0;
@@ -150,7 +150,7 @@ BstNode* BST::Search(int k) { //Search by rank;
 	while (p) {
 		q = p;
 		if (k == p->LeftSize) {
-			cout << p->data.key << endl;
+			cout << k << "번째 : " << p->data.key << endl;
 			return 0; 
 		}
 		if (k < p->LeftSize) {
@@ -165,7 +165,7 @@ BstNode* BST::Search(int k) { //Search by rank;
 
 	while (p) {
 		if (k == kRank + p->LeftSize) {
-			cout << p->data.key << endl;
+			cout << k << "번째 : " << p->data.key << endl;
 			return 0; 
 		}
 
@@ -177,28 +177,13 @@ BstNode* BST::Search(int k) { //Search by rank;
 			p = p->LeftChild;
 		}
 	}
-	cout << "k is wrong" << endl;
+	cout << "K is wrong" << endl;
 	return 0;
-
-	/*BstNode* t = root;
-	while (1) {
-		if (k == t->LeftChild)
-			return t;
-		if (k < t->LeftChild)
-			t = t->LeftChild;
-		else {
-			k -= LeftSize;
-			t = t->RightChild;
-		}
-	}
-	return 0;*/
 }
 
 bool BST::Insert(const Element& x) {
 	BstNode* p = root;
 	BstNode* q = 0;
-	//BstNode* changingPoint = 0; // root라고 안해도 될거 같은데
-	//int toChecktheChangingPoint = 0;
 	while (p) {
 		q = p;
 		if (x.key == p->data.key){
@@ -206,10 +191,10 @@ bool BST::Insert(const Element& x) {
 			return false; // x.key is already in t
 		}
 		if (x.key < p->data.key) {
-			p = p->LeftChild; // 왼쪽으로 가는거
+			p = p->LeftChild; 
 		}
 		else {
-			p = p->RightChild; // 오른쪽으로 가는거
+			p = p->RightChild;
 		}
 	}
 	p = root;
@@ -220,10 +205,10 @@ bool BST::Insert(const Element& x) {
 			return false; // x.key is already in t
 		if (x.key < p->data.key) {
 			p->LeftSize = p->LeftSize + 1;
-			p = p->LeftChild; // 왼쪽으로 가는거
+			p = p->LeftChild; 
 		}
 		else {
-			p = p->RightChild; // 오른쪽으로 가는거
+			p = p->RightChild;
 		}
 	} // 여기까지는 위치를 찾는거
 	p = new BstNode; // 해당위치에 연결시키는 입력 및 과정
@@ -265,7 +250,7 @@ bool BST::Delete(const Element& x) {
 
 	p = root;
 	q = 0;
-	while (p->data.key != x.key) { // 이렇게 key로 해야지 찾을려고 하는 값들을 비교하는 건가?
+	while (p->data.key != x.key) { 
 		q = p;
 		if (p->data.key > x.key) {
 			p->LeftSize = p->LeftSize - 1;
@@ -294,20 +279,20 @@ bool BST::Delete(const Element& x) {
 		qq->LeftChild = forLink->LeftChild; // 연결
 		childNodeForQ = forLink->RightChild; // 결국 이렇게 줘서 위에 q랑 연결하고자 하는거
 	}
-	else if (p->RightChild) { // RightChild만 있는거 // LeftSize 추가적으로 고려X
+	else if (p->RightChild) { // RightChild만 있는거 
 		childNodeForQ = p->RightChild;
 	}
-	else if(p->LeftChild) { // LeftChild만 있는거 // LeftSize 추가적으로 고려X 
+	else if(p->LeftChild) { // LeftChild만 있는거 
 		childNodeForQ = p->LeftChild;
 	}
-	else { // 둘다 없는거 // LeftSize 추가적으로 고려 X ////////////////////////////여기 다시 체크
+	else { // 둘다 없는거 
 		if (rightLeft == 0) {
 			q->LeftChild = 0;
 		}
 		else {
 			q->RightChild = 0;
 		}
-		delete p; // 이렇게만 해놓고 없애도 되는건가?
+		delete p; 
 		return true;
 	}
 	delete p;
@@ -356,19 +341,19 @@ BST* BST::ThreeWayJoin(BST* A, Element* x, BST* B) {
 	BST* newTree = new BST;
 	newTree->root = newNode;
 	return newTree;
-} // A는 왼쪽, B는 오른쪽으로 해서 합친거
+} 
 
 BST* BST::TwoWayJoin(BST* A, BST* B) {
 	if (!A)
 		return B;
 	if (!B)
 		return A;
-	// 없으면 하나만 출력 한다는거
+	
 	Element midEle;
-	A->DeleteLargestElement(midEle); // root를 만들기 위해서 일단 지우는거
+	A->DeleteLargestElement(midEle); 
 
 	// x= largest element of A or smallest element of B
-	return ThreeWayJoin(A, &midEle, B);  // 여기서 위에서 지운것을 기준으로 좌우 맞추기
+	return ThreeWayJoin(A, &midEle, B);  
 }
 
 int main() {
