@@ -208,3 +208,166 @@ void Graph::BellmanFord(const int v) {
 	//cout << "k = " << k << ", ";
 	//Out(n);
 }
+
+void Graph::BellmanFord2(const int v) {//Single source all destination shortest paths with negative edge lengths
+	for(int i = 0; i < n; i++)
+		dist[i] = length[v][i]; //initialize dist
+	for (int k = 2; k <= n - 1; k++) {
+		for (int l = 0; l < n; l++)
+			newdist[l] = dist[l];
+		for (int u = 0; u < n; u++)
+			if (u != v) {
+				for (int i = 0; i < n; i++)
+					if ((u != i) && (length[i][u] < MAX_WEIGHT))
+						if (newdist[u] > dist[i] + length[i][u])
+							newdist[u] = dist[i] + length[i][u];
+			}
+		for (int i = 0; i < n; i++)
+			dist[i] = newdist[i];
+	}
+}
+
+void Graph::AllLengths() {
+	// lenght[n][n] is the adjacency matrix of a graph with n vertices.
+	// a[i][j] is the length of the shortest path between i and j
+	for (int i = 0; i < n; i++)
+		for (int j = 0; j < n; j++)
+			a[i][j] = length[i][j]; // copy length into a
+	
+	int k = 0;
+	for (; k < n; k++) { // for a path with highest vertex index k
+		cout << "\n A[" << k - 1 << "]" << endl;
+		OutA(n);
+		for (int i = 0; i < n; i++)
+			for (int j = 0; j < n; j++)
+				if ((a[i][k] + a[k][j]) < a[i][j])
+					a[i][j] = a[i][k] + a[k][j];
+	}
+	cout << "\n A[" << k - 1 << "]" << endl;
+	OutA(n);
+}
+
+Graph* defaultSetup1() {
+	Graph* g = new Graph(7);
+
+	g->insertEdge(0, 1, 6);
+	g->insertEdge(0, 2, 5);
+	g->insertEdge(0, 3, 5);
+	g->insertEdge(1, 4, -1);
+	g->insertEdge(2, 1, -2);
+	g->insertEdge(2, 4, 1);
+	g->insertEdge(3, 2, -2);
+	g->insertEdge(3, 5, -1);
+	g->insertEdge(4, 6, 3);
+	g->insertEdge(5, 6, 3);
+	g->insertEdge(, , );
+	g->insertEdge(, , );
+
+	return g;
+}
+
+Graph* defaultSetup2() {
+	Graph* g = new Graph(8);
+
+	g->insertEdge(1, 0, 300);
+	g->insertEdge(2, 1, 800); 
+	g->insertEdge(2, 0, 1000);
+	g->insertEdge(3, 2, 1200); 
+	g->insertEdge(4, 3, 1500);
+	g->insertEdge(4, 5, 250); 
+	g->insertEdge(5, 3, 1000);
+	g->insertEdge(5, 7, 1400); 
+	g->insertEdge(5, 6, 900);
+	g->insertEdge(6, 7, 1000);
+	g->insertEdge(7, 0, 1700);
+
+	return g;
+}
+
+Graph* setup_allPairShortestPaths() {
+	Graph* g = new Graph(3);
+	g->insertEdge(0, 1, 4);
+	g->insertEdge(0, 2, 11);
+	g->insertEdge(1, 0, 6);
+	g->insertEdge(1, 2, 2);
+	g->insertEdge(2, 0, 3);
+
+	return g;
+}
+
+int main(void) {
+	Graph* g = nullptr;
+	int select = 0, n, start = -1, end = -1, weight = -1;
+	cout << "1: custom setup, 2: Default Setup1[sortest path(non-negative)], " << "3: Default Setup2[single source/all destinations(negative edge costs)], 4: Default Setup3[allPairShortestPaths]";
+	cin >> select;
+	if (select == 1) {
+		cout << "Input the total node number: ";
+		cin >> n;
+		g = new Graph(n);
+	}
+	else if (select == 2) {
+		g = defaultSetup2();
+	}
+	else if (select == 3) {
+		g = defaultSetup1();
+	}
+	else if (select == 4) {
+		g = setup_allPairShortestPaths();
+	}
+	else {
+		throw "illegal input";
+	}
+
+	while (select != '0') {
+		cout << "\nSelect command 1: AddEdge, 2: AdjacencyLists, 3: singleSource/all destinations(non-negative edge cost)" << "4; single source/all destinations(negative edge costs), 5. All-pairs shortest pahts, 6. Quit => ";
+		cin >> select;
+		switch (select) {
+		case 1:
+			cout << "Add an edge: " << endl;
+			cout << "--------Input start node: ";
+			cin >> start;
+			cout << "--------Input destination node: ";
+			cin >> end;
+			cout << "--------Input weight: ";
+			cin >> weight;
+
+			g->insertEdge(start, end, weight);
+			break;
+		case 2:
+			//display
+			g->displayConnectionMatrix();
+			break;
+		case 3:
+			cout << "\nsingle source/all destinations: non-negative edge costs: " << endl;
+			if (!g->isNonNegativeEdgeCost()) {
+				cout << "Negative edge cost exists!!" << endl;
+				cout << "Please re-build the graph with non-negative edge costs." << endl;
+				break;
+			}
+			cout << "\n --------> Input start node: ";
+			cin >> start;
+			
+			g->ShortestPath_display(start);
+			break;
+		case 4:
+			cout << "\nsingle source/all destinations: negative edge costs: " << endl;
+			cout << "\n --------> Input start node: ";
+			cin >> start;
+
+			g->BellmanFord(start);
+			break;
+		case 5:
+			cout << "\nAll-pairs shortest pahts:" << endl;
+			g->AllLengths();
+			break;
+		case 6:
+			exit(0);
+		default:
+			cout << "WRONG INPUT " << endl;
+			cout << "Re-Enter" << endl;
+			break;
+		}
+	}
+	delete g;
+	return 0;
+}
