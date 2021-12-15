@@ -46,7 +46,7 @@ namespace topo {
 
 	template <class Type>
 	void List<Type>::Insert(Type k) {
-		ListNode<Type>* newnode = new LIstNode<Type>(k);
+		ListNode<Type>* newnode = new ListNode<Type>(k);
 		newnode->link = first;
 		first = newnode;
 	}
@@ -177,7 +177,7 @@ namespace topo {
 			cout << "adjacency list: " << endl;
 			for (int i = 0; i < n; i++) {
 				List<Pair> list = HeadNodes[i];
-				cout << "in-degree count=" >> count[i] << ", " << i << " ";
+				cout << "in-degree count=" << count[i] << ", " << i << " ";
 				ListIterator<Pair> iter(list);
 
 				if (~iter.NotNull()) {
@@ -397,6 +397,227 @@ namespace topo {
 
 	//The n vertices of a network are listed in topological order
 	void Graph::LateActivity() {
+		for (int i = 0; i < n; i++) {
+			ee[i] = 0;
+		}
 
+		EarlyActivity();
+
+		Graph* inversedG = this->inverseGraph();
+		List<Pair>* inversedHeadNodes = inversedG->getAdjacencyLists();
+		int* inversedCount = inversedG->getCountArr();
+		//get and set max value in ee
+		int max = -1;
+		for (int i = 0; i < n; i++) {
+			if (ee[n - 1] > max)
+				max = ee[n - 1];
+		}
+		for (int i = 0; i < n; i++) {
+			le[i] = max;
+		}
+		int top = -1; //store the first vertice with no predecessors
+		for (int i = 0; i < n; i++) { // create a linked stack of verices with no predecessors
+			if (inversedCount[i] == 0) {
+				inversedCount[i] = top;
+				top = i;
+			}
+		}
+		for(int i = 0; i < n; i++)
+			if (top = -1) {
+				cout << " network has a cycle" << endl;
+				return;
+			}
+			else {
+				int j = top;
+				top = inversedCount[top]; // unstack a vertex
+				ListIterator<Pair> li(inversedHeadNodes[j]);
+				if (!li.NotNull())
+					continue;
+				Pair p = *li.First();
+				while (1) {
+					int k = p.vertex;
+					if (le[k] > le[j] - p.dur)
+						le[k] = le[j] - p.dur;
+					inversedCount[k]--;
+					if (inversedCount[k] == 0) { // update the vertice wiht no predecessors
+						inversedCount[k] = top;
+						top = k;
+					}
+					if (li.NextNotNull())
+						p = *li.Next();
+					else
+						break;
+				}
+			}
+		delete inversedG;
 	}
+
+	// The n vertices of a network are listed in topological order
+	void Graph::EarlyActivity() {
+		int* countArr = new int[n];
+		for (int i = 0; i < n; i++) {
+			countArr[i] = count[i];
+		}
+		int top = -1; // store the first vertice with no predecessors
+		for (int i = 0; i < n; i++) {
+			if (countArr[i] == 0) {
+				countArr[i] = top;
+				top = i;
+			}
+		}
+		for (int i = 0; i < n; i++) //initialize ee
+			ee[i] = 0;
+		
+		for(int i = 0; i < n; i++)
+			if (top == -1) {
+				cout << " network has a cycle" << endl;
+				return;
+			}
+			else {
+				int j = top;
+				top = countArr[top]; // unstack a vertex
+				//cout << j << endl;
+				ListIterator<Pair> li(HeadNodes[j]);
+				if (!li.NotNull())
+					continue;
+				Pair p = *li.First();
+				while (1) {
+					int k = p.vertex;
+					if (ee[k] < ee[j] + p.dur)
+						ee[k] = ee[j] + p.dur;
+					countArr[k]--;
+					if (countArr[k] == 0) { // update the vertice with no predecessors
+						countArr[k] = top;
+						top = k;
+					}
+					if (li.NextNotNull())
+						p = *li.Next();
+					else
+						break;
+				}
+			}
+		for (int l = 0; l < n; l++) {
+			// cout << ee[l[ << " ";
+		}
+		delete[] countArr;
+	}
+
+	// The n vertices of a network are listed in topological order
+	void Graph::EarlyActivity_display() {
+		int* countArr = new int[n];
+		for (int i = 0; i < n; i++) {
+			countArr[i] = count[i];
+		}
+		int top = -1; // store the first vertice with no predecessors
+		for (int i = 0; i < n; i++) { // create a linked stack of vertices with no predecessors
+			if (countArr[i] == 0) {
+				countArr[i] = top;
+				top = i;
+			}
+		}
+		cout << "Display ee (early event occurence time) " << endl;
+		cout << "initial  ";
+		for (int i = 0; i < n; i++)
+			ee[i] = 0; // initialize ee
+		displayArr(ee, n);
+		displayStack(top, countArr);
+
+		for (int i = 0; i < n; i++) {
+			if (top = -1) {
+				cout << " network has a cycle" << endl;
+				return;
+			}
+			else {
+				int j = top;
+				top = countArr[top]; // unstack a vertex
+
+				cout << "output " << j << "; ";
+				ListIterator<Pair> li(HeadNodes[j]);
+				if (!li.NotNull())
+					continue;
+				Pair p = *li.First();
+				while (1) {
+					int k = p.vertex;
+					if (ee[k] < ee[j] + p.dur)
+						ee[k] = ee[j] + p.dur;
+					countArr[k]--;
+					if (countArr[k] == 0) { // update the vertice with no predecessors
+						countArr[k] = top;
+						top = k;
+					}
+					if (li.NextNotNull())
+						p = *li.Next();
+					else
+						break;
+				}
+				displayArr(ee, n);
+				displayStack(top, countArr);
+			}
+		}
+		displayArr(ee, n);
+		delete[] countArr;
+	}
+}
+
+int main(void) {
+	topo::Graph* g = nullptr;
+	int select = 0, n, start = -1, end = -1, weight = -1;
+	topo::Graph* inversedG = nullptr;
+	cout << "1: custom setup, 2: default setup ";
+	cin >> select;
+	if (select == 1) {
+		cout << "Input the total node number: ";
+		cin >> n;
+		g = new topo::Graph(n);
+	}
+	else if (select == 2) {
+		g = new topo::Graph(9);
+		g->Setup4();
+	}
+	while (select != '0') {
+		cout << "\nSelect command 1: Add edge, 2: AdjacencyLists, 3: Inversed AdjacencyList"
+			<< "4: Early Activity, 5: Late Activity, 6: Critical activity 7: TopologicalOrder, 8: Quit => ";
+		cin >> select;
+		switch (select) {
+		case 1:
+			cout << "Add an edge: " << endl;
+			cout << "------Input start node: ";
+			cin >> start;
+			cout << "------Input destination node: ";
+			cin >> end;
+			cout << "------Input weight: ";
+			cin >> weight;
+
+			g->addEdge(start, end, weight);
+			break;
+		case 2:
+			//display
+			g->printAdjacencyLists();
+			break;
+		case 3:
+			inversedG = g->inverseGraph();
+			inversedG->printAdjacencyLists();
+			delete inversedG;
+			break;
+		case 4:
+			g->EarlyActivity_display();
+			break;
+		case 5:
+			g->LateActivity_display();
+			break;
+		case 6:
+			g->display_early_late_criticalActivity();
+		case 7:
+			g->TopologicalOrder();
+			break;
+		case 8:
+			exit(0);
+		default:
+			cout << "WRONG INPUT" << endl;
+			cout << "Re-Enter" << endl;
+			break;
+		}
+	}
+	delete g;
+	return 0;
 }
